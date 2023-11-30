@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AIIJCdemo</title>	
+    <link rel="icon" type="image/png" sizes="32x32" href="https://aiijc.com/static/dist/aiijc/favicon/favicon-32x32.png?v=3.36.14">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='users.css') }}">
+</head>
+<body>
+<div class="url_to_index">
+    <a href="/">
+        ⬅️ Upload files
+    </a>
+</div>
+<header>
+    <h1>Users information</h1>
+    <a class="export_button" href="/static/submit.csv">
+        Export csv
+    </a>
+</header>
+
+<main>
+    <div class="search">
+        <div>
+        <input type="text" id="search_box">
+        <input type="submit" value="Search" id="search_button" onclick="search()">
+        </div>
+    </div>
+    <div id = "search_response" class="search_response">
+
+    </div>
+
+
+    <ul>
+    </ul>
+</main>
+</body>
+<script>
+let offset = 0;
+let limit = 30;
+let currentCount = 0;
+let total = 0;
+let bottom_flag = true;
+
+function fetchData() {
+    console.log(offset)
+    fetch(`http://127.0.0.1:5000/api/get_users?offset=${offset}&limit=${limit}`)
+    .then(response => response.json())
+    .then(data => {
+      // Get the users array from the response
+      const users = data.users;
+
+      // Get the <ul> element from the HTML
+      const userList = document.querySelector('ul');
+
+      // Iterate over each user in the users array
+      users.forEach(user => {
+        // Create a new <li> element
+        const listItem = document.createElement('li');
+
+        // Create an <input> element
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = true;
+
+        // Create an <i> element
+        const icon = document.createElement('i');
+
+        // Create an <h2> element
+        const nameHeading = document.createElement('h2');
+        nameHeading.textContent = user.name;
+
+        // Create a <p> element for the image
+        const imageParagraph = document.createElement('p');
+        const image = document.createElement('img');
+        image.src = user.image_url;
+        imageParagraph.appendChild(image);
+
+        // Iterate over each illness in the user's illnesses object
+        for (const [illness, percent] of Object.entries(user.illnesses)) {
+          // Create a <p> element for each illness
+          const illnessParagraph = document.createElement('p');
+          illnessParagraph.textContent = `${illness}: ${percent}`;
+
+          // Append the illness paragraph to the list item
+          imageParagraph.appendChild(illnessParagraph);
+        }
+
+        // Append all elements to the list item
+        listItem.appendChild(checkbox);
+        listItem.appendChild(icon);
+        listItem.appendChild(nameHeading);
+        listItem.appendChild(imageParagraph);
+
+        // Append the list item to the user list
+        userList.appendChild(listItem);
+      });
+
+      // Check if there are more users to fetch
+      total = data.total;
+      currentCount = currentCount + limit;
+      offset = offset+ limit;
+      bottom_flag = true;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+}
+function isEndOfPage() {
+  return (window.innerHeight + window.scrollY) >= document.body.offsetHeight;
+}
+
+// Event listener to call the fetchDataAndPopulate function when the user reaches the end of the page
+window.addEventListener('scroll', () => {
+  if (isEndOfPage() && total > currentCount && bottom_flag) {
+    bottom_flag = false;
+    fetchData();
+  }
+});
+// Initial data fetch
+fetchData();
+
+
+function search(){
+    fetch(`http://127.0.0.1:5000/api/get_user/${search_box.value}`)
+  .then(response => response.json())
+  .then(data => {
+    // Call the parseApiResponse function with the retrieved data
+    const illnesses = data.illnesses;
+
+  // Create an empty string to store the HTML content
+  let htmlContent = '';
+    const header = `<h3>${data.name}</h3>`
+    htmlContent += header
+    const image = `<img src=${data.image_url}>`
+    htmlContent += image
+  // Loop through each illness in the illnesses object
+  for (const illness in illnesses) {
+    // Get the percentage value for the current illness
+    const percentage = illnesses[illness];
+
+    // Create a div element with the illness name and percentage
+    const divElement = `<div>${illness}: ${percentage}</div>`;
+
+    // Append the div element to the HTML content
+    htmlContent += divElement;
+  }
+
+  // Get the div element with the id "search_response"
+  const searchResponseDiv = document.getElementById('search_response');
+
+  // Set the HTML content of the div element
+  searchResponseDiv.innerHTML = htmlContent;
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    search_response.innerHTML = 'Not Found';
+  });
+}
+</script>
+</html>

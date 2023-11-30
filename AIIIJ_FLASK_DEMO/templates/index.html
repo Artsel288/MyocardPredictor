@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AIIJCdemo</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="https://aiijc.com/static/dist/aiijc/favicon/favicon-32x32.png?v=3.36.14">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body>
+<div class="url_to_users">
+  <a href="/users">
+    View data ➡
+  </a>
+</div>
+  <header>
+    <div style="display: flex; ">
+    <img src="{{ url_for('static', filename='logo.svg') }}">
+    <h1 style="color: #022994; margin-left: 10px;"> demo</h1>
+  </div>
+  </header>
+  <main>
+    <div class="center">
+      <div class="upload_form">
+        <h2>Zip file upload</h2>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+          <div>
+          <label for="file" class="drop-container" id="dropcontainer">
+          <span class="drop-title">Drop files here</span>
+          <input type="file" id="file" name="file" required>
+          </label>
+            </div>
+            <div class="submit-container">
+              <input type="submit" class="submit" value="Submit">
+            </div>
+        </form>
+        </div>
+      <div class="upload_form">
+        <h2>CSV file upload</h2>
+        <form action="/upload_csv" method="POST" enctype="multipart/form-data">
+          <div>
+          <label for="file" class="drop-container" id="dropcontainer">
+          <span class="drop-title">Drop files here</span>
+          <input type="file" id="file" name="file" required>
+          </label>
+            </div>
+            <div class="submit-container">
+              <input type="submit" class="submit" value="Submit">
+            </div>
+        </form>
+        </div>
+    </div>
+  </main>
+</body>
+</html>
